@@ -1,7 +1,7 @@
 package document
 
 import (
-	"github.com/polarisbase/polaris-sdk/v3/lib/persist"
+	"github.com/polarisbase/polarisbase-persist"
 	"github.com/uptrace/bun"
 )
 
