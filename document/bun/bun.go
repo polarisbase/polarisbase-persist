@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/uptrace/bun/dialect/pgdialect"
+	"github.com/uptrace/bun/driver/pgdriver"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/sqlitedialect"
 	"github.com/uptrace/bun/driver/sqliteshim"
@@ -23,7 +25,11 @@ func New() *Store {
 
 // Connect to the database (apart of the Persist interface)
 func (s *Store) Connect() (err error) {
+	return s.ConnectSql()
+}
 
+// Connect to the database (apart of the Persist interface)
+func (s *Store) ConnectSql() (err error) {
 	// Connect to the database
 	sqldb, err := sql.Open(sqliteshim.ShimName, "file::memory:?cache=shared")
 	if err != nil {
@@ -33,6 +39,25 @@ func (s *Store) Connect() (err error) {
 	s._sqldb = sqldb
 	// Create bun database
 	db := bun.NewDB(sqldb, sqlitedialect.New())
+	// Set the bun database
+	s._db = db
+	// Enable logging
+	s.EnableLogging()
+	// Test the connection
+	s.TestConnection()
+	// Return any error
+	return
+}
+
+// Connect to the database (apart of the Persist interface)
+// "postgres://postgres:@localhost:5432/test?sslmode=disable"
+func (s *Store) ConnectPostgres(dsn string) (err error) {
+	// Connect to the database
+	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
+	// Set the sqlite database
+	s._sqldb = sqldb
+	// Create bun database
+	db := bun.NewDB(sqldb, pgdialect.New())
 	// Set the bun database
 	s._db = db
 	// Enable logging
