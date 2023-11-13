@@ -4,7 +4,9 @@ go 1.21
 
 require (
 	github.com/uptrace/bun v1.1.16
+	github.com/uptrace/bun/dialect/pgdialect v1.1.16
 	github.com/uptrace/bun/dialect/sqlitedialect v1.1.16
+	github.com/uptrace/bun/driver/pgdriver v1.1.16
 	github.com/uptrace/bun/driver/sqliteshim v1.1.16
 	github.com/uptrace/bun/extra/bundebug v1.1.16
 )
@@ -22,10 +24,12 @@ require (
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
+	golang.org/x/crypto v0.13.0 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect
 	golang.org/x/tools v0.13.0 // indirect
 	lukechampine.com/uint128 v1.3.0 // indirect
+	mellium.im/sasl v0.3.1 // indirect
 	modernc.org/cc/v3 v3.41.0 // indirect
 	modernc.org/ccgo/v3 v3.16.15 // indirect
 	modernc.org/libc v1.24.1 // indirect

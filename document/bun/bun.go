@@ -5,12 +5,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/uptrace/bun/dialect/pgdialect"
-	"github.com/uptrace/bun/driver/pgdriver"
 	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/dialect/sqlitedialect"
+	"github.com/uptrace/bun/driver/pgdriver"
 	"github.com/uptrace/bun/driver/sqliteshim"
 	"github.com/uptrace/bun/extra/bundebug"
+	"strings"
 )
 
 type Store struct {
@@ -98,9 +99,73 @@ func (s *Store) TestConnection() (err error) {
 // Migrate the database (apart of the Persist interface)
 func (s *Store) MigrateUsing(models ...interface{}) (err error) {
 
+	return s.MigrateUsingWithNamespace("", models...)
+
+}
+
+// Migrate
+func (s *Store) Migrate(namespace string, model interface{}) (tableName string, err error) {
+
+	if namespace == "" {
+		namespace = ""
+	} else {
+		namespace = namespace + "_"
+	}
+
+	// get the model name
+	modelName := fmt.Sprintf("%T\n", model)
+	// remove and '.' and replace with '_'
+	modelName = strings.ReplaceAll(modelName, ".", "_")
+	// remove the '*'
+	modelName = strings.ReplaceAll(modelName, "*", "")
+
+	// tableName
+	tableName = namespace + strings.ToLower(modelName)
+
+	// Create table.
+	_, err = s._db.NewCreateTable().
+		Model(model).
+		ModelTableExpr(
+			tableName,
+		).
+		Exec(context.Background())
+	if err != nil {
+		panic(err) // TODO: handle error and remove panic
+	}
+
+	return
+}
+
+// Migrate the database (apart of the Persist interface)
+func (s *Store) MigrateUsingWithNamespace(namespace string, models ...interface{}) (err error) {
+
+	prefix := namespace + "_"
+	if namespace == "" {
+		prefix = ""
+	}
+
+	_ = prefix
+
 	for _, model := range models {
+
+		// get the model name
+		modelName := fmt.Sprintf("%T\n", model)
+		// remove and '.' and replace with '_'
+		modelName = strings.ReplaceAll(modelName, ".", "_")
+		// remove the '*'
+		modelName = strings.ReplaceAll(modelName, "*", "")
+
+		fmt.Printf("Modle Name: %s", modelName)
+
+		//_, err := s._db.NewCreateTable().Model(model).Exec(context.Background())
+
 		// Create table.
-		_, err := s._db.NewCreateTable().Model(model).Exec(context.Background())
+		_, err := s._db.NewCreateTable().
+			Model(model).
+			ModelTableExpr(
+				prefix + strings.ToLower(modelName),
+			).
+			Exec(context.Background())
 		if err != nil {
 			panic(err) // TODO: handle error and remove panic
 		}
